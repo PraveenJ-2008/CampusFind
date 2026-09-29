@@ -1,0 +1,403 @@
+{
+  "info": {
+    "name": "CampusFind REST API Collection",
+    "description": "Comprehensive Postman test collection for CampusFind Lost and Found Item Tracker, covering authentication, categories, lost reports, found items, matching engine, admin endpoints, and validation / error handling scenarios.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "studentToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "staffToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login as Admin (Default)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@campusfind.edu\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login as Student (Demo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@campusfind.edu\",\n  \"password\": \"Student@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Login as Staff (Demo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"staff@campusfind.edu\",\n  \"password\": \"Staff@123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Register New Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Rahul Kumar\",\n  \"email\": \"rahul@campusfind.edu\",\n  \"password\": \"Password@123\",\n  \"role\": \"STUDENT\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "[Negative] Attempt Self-Register as Admin (Expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Attacker\",\n  \"email\": \"attacker@campusfind.edu\",\n  \"password\": \"Password@123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "[Negative] Register with Duplicate Email (Expect 409 Conflict)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Praveen J Duplicate\",\n  \"email\": \"student@campusfind.edu\",\n  \"password\": \"Password@123\",\n  \"role\": \"STUDENT\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Get Current User Profile (/api/auth/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categories",
+      "item": [
+        {
+          "name": "Get Active Categories (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "Get All Categories including Inactive (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/categories?all=true"
+          }
+        },
+        {
+          "name": "Create Category (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laboratory Equipment\",\n  \"description\": \"Oscilloscopes, multimeters, lab tools\",\n  \"active\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "[Negative] Non-Admin Create Category (Expect 403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Unauthorized Category\",\n  \"description\": \"Should fail\",\n  \"active\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/categories"
+          }
+        },
+        {
+          "name": "Toggle Category Active Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"active\": false\n}"
+            },
+            "url": "{{baseUrl}}/api/categories/1/active"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Lost Reports",
+      "item": [
+        {
+          "name": "Search Lost Reports (Public / Authenticated)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/lost?query=casio&status=OPEN"
+          }
+        },
+        {
+          "name": "Get Lost Report By ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/lost/1"
+          }
+        },
+        {
+          "name": "Create Lost Report (Student)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Black HP Laptop Charger 65W\",\n  \"categoryId\": 2,\n  \"description\": \"Forgot in Lab 2 bench 5 near window. Has a green sticker.\",\n  \"location\": \"Computer Lab 2 Window Side\",\n  \"lostDate\": \"2026-09-25\"\n}"
+            },
+            "url": "{{baseUrl}}/api/lost"
+          }
+        },
+        {
+          "name": "[Negative] Create Lost Report with Future Date (Expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Future Lost Item\",\n  \"categoryId\": 1,\n  \"description\": \"Invalid date test\",\n  \"location\": \"Campus\",\n  \"lostDate\": \"2029-01-01\"\n}"
+            },
+            "url": "{{baseUrl}}/api/lost"
+          }
+        },
+        {
+          "name": "Get My Lost Reports",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/lost/mine"
+          }
+        },
+        {
+          "name": "Update Report Status (Owner or Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLOSED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/lost/1/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Found Items",
+      "item": [
+        {
+          "name": "List Found Items (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/found?status=AVAILABLE"
+          }
+        },
+        {
+          "name": "Register Found Item (Staff)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"HP 65W Laptop Charger\",\n  \"categoryId\": 2,\n  \"description\": \"Black HP charger found plugged into socket in Lab 2.\",\n  \"location\": \"Computer Lab 2 Desk 5\",\n  \"foundDate\": \"2026-09-25\"\n}"
+            },
+            "url": "{{baseUrl}}/api/found"
+          }
+        },
+        {
+          "name": "[Negative] Student Attempt to Create Found Item (Expect 403 Forbidden)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Found Smart Watch\",\n  \"categoryId\": 7,\n  \"description\": \"Student trying to create found item directly\",\n  \"location\": \"Library\",\n  \"foundDate\": \"2026-09-25\"\n}"
+            },
+            "url": "{{baseUrl}}/api/found"
+          }
+        },
+        {
+          "name": "[Negative] Invalid Transition: AVAILABLE directly to RETURNED (Expect 400)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RETURNED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/found/1/status"
+          }
+        },
+        {
+          "name": "Valid Transition: AVAILABLE to CLAIMED (Staff)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLAIMED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/found/1/status"
+          }
+        },
+        {
+          "name": "Valid Transition: CLAIMED to RETURNED (Staff)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RETURNED\"\n}"
+            },
+            "url": "{{baseUrl}}/api/found/1/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Item Matching Engine",
+      "item": [
+        {
+          "name": "Get Suggested Matches for Lost Report",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/matches/1"
+          }
+        },
+        {
+          "name": "Confirm Match (Marks Report MATCHED and Item CLAIMED)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/matches/1/confirm?foundId=1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Admin Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Metrics (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/admin/dashboard"
+          }
+        },
+        {
+          "name": "Get All Users List (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/admin/users"
+          }
+        },
+        {
+          "name": "Get All Reports with Filters (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": "{{baseUrl}}/api/admin/reports?status=OPEN"
+          }
+        }
+      ]
+    }
+  ]
+}

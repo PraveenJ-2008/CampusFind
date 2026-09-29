@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind — Lost and Found Item Tracker</title>
+  <meta name="description" content="CampusFind college lost and found portal with intelligent category and keyword matching engine.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">🔍</div>
+      <div>
+        <div class="brand-name">CampusFind</div>
+        <span class="brand-sub">Lost & Found Portal</span>
+      </div>
+    </div>
+
+    <ul class="sidebar-menu" id="sidebar-menu">
+      <li class="menu-category">Main</li>
+      <li><a class="sidebar-link active" onclick="navigateTo('view-browse-lost')"><span class="icon">📦</span> Browse Lost Items</a></li>
+      <li><a class="sidebar-link" onclick="navigateTo('view-browse-found')"><span class="icon">✨</span> Browse Found Items</a></li>
+      <li><a class="sidebar-link" onclick="navigateTo('view-matches')"><span class="icon">⚡</span> Smart Match Engine</a></li>
+
+      <li class="menu-category" id="sec-student-cat">Student Portal</li>
+      <li id="sec-student-dash"><a class="sidebar-link" onclick="navigateTo('view-student-dashboard')"><span class="icon">📊</span> My Dashboard</a></li>
+      <li id="sec-report-lost"><a class="sidebar-link" onclick="navigateTo('view-report-lost')"><span class="icon">➕</span> Report Lost Item</a></li>
+
+      <li class="menu-category" id="sec-staff-cat">Staff Desk</li>
+      <li id="sec-report-found"><a class="sidebar-link" onclick="navigateTo('view-report-found')"><span class="icon">📥</span> Register Found Item</a></li>
+
+      <li class="menu-category" id="sec-admin-cat">Administration</li>
+      <li id="sec-admin-dash"><a class="sidebar-link" onclick="navigateTo('view-admin-dashboard')"><span class="icon">🛡️</span> Admin Dashboard</a></li>
+      <li id="sec-admin-cat-mgmt"><a class="sidebar-link" onclick="navigateTo('view-categories')"><span class="icon">🏷️</span> Category Manager</a></li>
+
+      <li class="menu-category">Account</li>
+      <li id="sec-profile"><a class="sidebar-link" onclick="navigateTo('view-profile')"><span class="icon">👤</span> My Profile</a></li>
+      <li id="sec-login"><a class="sidebar-link" onclick="navigateTo('view-login')"><span class="icon">🔑</span> Login</a></li>
+      <li id="sec-register"><a class="sidebar-link" onclick="navigateTo('view-register')"><span class="icon">📝</span> Register</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="user-snippet" id="sidebar-user-snippet">
+        <div class="user-name" id="sidebar-user-name">Guest User</div>
+        <span class="user-role-badge" id="sidebar-user-role">NOT LOGGED IN</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" id="btn-auth-toggle" onclick="handleAuthToggle()">Login</button>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Nav Header -->
+    <header class="top-nav">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="btn btn-secondary btn-sm mobile-menu-btn" style="display:none;" onclick="toggleSidebar()">☰</button>
+        <h1 class="page-title" id="page-title">Browse Lost Items</h1>
+      </div>
+      <div class="nav-actions">
+        <span id="header-user-greeting" style="font-size: 0.9rem; font-weight: 500; color: var(--text-muted);">Welcome to CampusFind</span>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- SCREEN 1: LOGIN -->
+      <section id="view-login" class="view-section">
+        <div class="auth-container">
+          <div class="card">
+            <h2 class="card-title">Sign In to CampusFind</h2>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:16px;">
+              Access lost & found reporting, matching and administrative dashboards.
+            </p>
+
+            <div class="demo-credentials-box">
+              <strong>Quick Demo Logins (Click to Autofill):</strong><br>
+              <span class="demo-chip" onclick="fillLogin('admin@campusfind.edu', 'Admin@123')">🛡️ Admin</span>
+              <span class="demo-chip" onclick="fillLogin('student@campusfind.edu', 'Student@123')">🎓 Student</span>
+              <span class="demo-chip" onclick="fillLogin('staff@campusfind.edu', 'Staff@123')">💼 Staff</span>
+            </div>
+
+            <form id="form-login" onsubmit="handleLoginSubmit(event)">
+              <div class="form-group">
+                <label class="form-label" for="login-email">Campus Email</label>
+                <input class="form-control" type="email" id="login-email" required placeholder="name@campusfind.edu">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="login-password">Password</label>
+                <input class="form-control" type="password" id="login-password" required placeholder="••••••••">
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;">Sign In</button>
+            </form>
+            <p style="margin-top:16px; font-size:0.875rem; text-align:center;">
+              Don't have an account? <a href="javascript:void(0)" onclick="navigateTo('view-register')">Register here</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: REGISTRATION -->
+      <section id="view-register" class="view-section">
+        <div class="auth-container">
+          <div class="card">
+            <h2 class="card-title">Create an Account</h2>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:16px;">
+              Register as a student or staff member. Self-registration as Admin is restricted.
+            </p>
+            <form id="form-register" onsubmit="handleRegisterSubmit(event)">
+              <div class="form-group">
+                <label class="form-label" for="reg-fullname">Full Name</label>
+                <input class="form-control" type="text" id="reg-fullname" required placeholder="e.g. Praveen J">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-email">Email Address</label>
+                <input class="form-control" type="email" id="reg-email" required placeholder="praveen@campusfind.edu">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-password">Password (min. 6 characters)</label>
+                <input class="form-control" type="password" id="reg-password" minlength="6" required placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="reg-role">Role</label>
+                <select class="form-control" id="reg-role" required>
+                  <option value="STUDENT">Student</option>
+                  <option value="STAFF">Staff / Security</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;">Complete Registration</button>
+            </form>
+            <p style="margin-top:16px; font-size:0.875rem; text-align:center;">
+              Already registered? <a href="javascript:void(0)" onclick="navigateTo('view-login')">Sign in here</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: STUDENT DASHBOARD -->
+      <section id="view-student-dashboard" class="view-section">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-icon icon-blue">📦</div>
+            <div>
+              <div class="metric-val" id="student-my-reports-count">0</div>
+              <div class="metric-label">My Lost Reports</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-amber">⏳</div>
+            <div>
+              <div class="metric-val" id="student-open-reports-count">0</div>
+              <div class="metric-label">Pending Search</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-green">🎉</div>
+            <div>
+              <div class="metric-val" id="student-matched-reports-count">0</div>
+              <div class="metric-label">Items Matched</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>My Submitted Lost Reports</span>
+            <button class="btn btn-primary btn-sm" onclick="navigateTo('view-report-lost')">➕ Report New Item</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Lost Location</th>
+                  <th>Date Lost</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="student-reports-table-body">
+                <tr><td colspan="6" style="text-align:center;">Loading your reports...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: REPORT LOST ITEM FORM -->
+      <section id="view-report-lost" class="view-section">
+        <div class="card" style="max-width: 680px; margin: 0 auto;">
+          <h2 class="card-title">Submit Lost Item Report</h2>
+          <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:20px;">
+            Provide detailed information so our AI matching engine can locate potential found item records.
+          </p>
+          <form id="form-report-lost" onsubmit="handleReportLostSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="lost-title">Item Title *</label>
+              <input class="form-control" type="text" id="lost-title" required placeholder="e.g. Casio Scientific Calculator FX-991EX">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lost-category">Category *</label>
+              <select class="form-control" id="lost-category" required>
+                <option value="">Select Category</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lost-location">Last Seen Location *</label>
+              <input class="form-control" type="text" id="lost-location" required placeholder="e.g. Central Library 2nd Floor, Desk 14">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lost-date">Date Lost *</label>
+              <input class="form-control" type="date" id="lost-date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lost-desc">Item Description & Identifiers *</label>
+              <textarea class="form-control" id="lost-desc" required placeholder="Color, brand, serial number, stickers, unique scratches or marks..."></textarea>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button type="submit" class="btn btn-primary">Submit Report</button>
+              <button type="button" class="btn btn-secondary" onclick="navigateTo('view-browse-lost')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: BROWSE LOST ITEMS -->
+      <section id="view-browse-lost" class="view-section">
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="browse-lost-query" placeholder="Search by title or keyword..." oninput="debounce(loadLostItems, 300)()">
+          <select class="form-control" id="browse-lost-cat" onchange="loadLostItems()">
+            <option value="">All Categories</option>
+          </select>
+          <select class="form-control" id="browse-lost-status" onchange="loadLostItems()">
+            <option value="">All Statuses</option>
+            <option value="OPEN" selected>OPEN Only</option>
+            <option value="MATCHED">MATCHED Only</option>
+            <option value="CLOSED">CLOSED Only</option>
+          </select>
+          <button class="btn btn-secondary" onclick="loadLostItems()">Refresh</button>
+        </div>
+        <div id="lost-items-container" class="items-grid"></div>
+      </section>
+
+      <!-- SCREEN 6: REPORT FOUND ITEM FORM (Staff / Admin) -->
+      <section id="view-report-found" class="view-section">
+        <div class="card" style="max-width: 680px; margin: 0 auto;">
+          <h2 class="card-title">Register Found Item</h2>
+          <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:20px;">
+            Authorized staff and security personnel registering items turned in or discovered on campus.
+          </p>
+          <form id="form-report-found" onsubmit="handleReportFoundSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="found-title">Item Title *</label>
+              <input class="form-control" type="text" id="found-title" required placeholder="e.g. Student ID Card found near Cafeteria">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="found-category">Category *</label>
+              <select class="form-control" id="found-category" required>
+                <option value="">Select Category</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="found-location">Found Location *</label>
+              <input class="form-control" type="text" id="found-location" required placeholder="e.g. Main Cafeteria Billing Counter">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="found-date">Date Found *</label>
+              <input class="form-control" type="date" id="found-date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="found-desc">Description & Safeguard Notes *</label>
+              <textarea class="form-control" id="found-desc" required placeholder="Condition, distinctive marks, safe deposit locker location..."></textarea>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button type="submit" class="btn btn-primary">Register Found Item</button>
+              <button type="button" class="btn btn-secondary" onclick="navigateTo('view-browse-found')">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SCREEN 7: BROWSE FOUND ITEMS -->
+      <section id="view-browse-found" class="view-section">
+        <div class="filter-bar">
+          <input type="text" class="form-control" id="browse-found-query" placeholder="Search title or description..." oninput="debounce(loadFoundItems, 300)()">
+          <select class="form-control" id="browse-found-cat" onchange="loadFoundItems()">
+            <option value="">All Categories</option>
+          </select>
+          <select class="form-control" id="browse-found-status" onchange="loadFoundItems()">
+            <option value="">All Statuses</option>
+            <option value="FOUND" selected>FOUND Only</option>
+            <option value="CLAIMED">CLAIMED Only</option>
+            <option value="RETURNED">RETURNED Only</option>
+          </select>
+          <button class="btn btn-secondary" onclick="loadFoundItems()">Refresh</button>
+        </div>
+        <div id="found-items-container" class="items-grid"></div>
+      </section>
+
+      <!-- SCREEN 8: POSSIBLE MATCHES ENGINE -->
+      <section id="view-matches" class="view-section">
+        <div class="card">
+          <h2 class="card-title">Intelligent Match Engine</h2>
+          <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:16px;">
+            Select any open lost item report to scan all available found items using category matching and keyword similarity scoring.
+          </p>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+            <select class="form-control" id="match-lost-selector" style="max-width:400px;" onchange="handleMatchSelectorChange()">
+              <option value="">-- Choose a Lost Report --</option>
+            </select>
+            <button class="btn btn-primary" onclick="runMatching()">Run Match Scan</button>
+          </div>
+
+          <div id="matches-results-container">
+            <div class="empty-state">
+              <div class="empty-icon">⚡</div>
+              <div class="empty-title">Select a lost report to see matched suggestions</div>
+              <p>The system compares categories, normalized keywords, and location tokens.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 9: ADMIN DASHBOARD -->
+      <section id="view-admin-dashboard" class="view-section">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-icon icon-blue">📦</div>
+            <div>
+              <div class="metric-val" id="adm-total-lost">0</div>
+              <div class="metric-label">Total Lost Reports</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-green">✨</div>
+            <div>
+              <div class="metric-val" id="adm-total-found">0</div>
+              <div class="metric-label">Total Found Items</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-amber">⏳</div>
+            <div>
+              <div class="metric-val" id="adm-pending-lost">0</div>
+              <div class="metric-label">Pending Lost (Open)</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-purple">🎯</div>
+            <div>
+              <div class="metric-val" id="adm-matched-reports">0</div>
+              <div class="metric-label">Matched Reports</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-blue">🟢</div>
+            <div>
+              <div class="metric-val" id="adm-available-found">0</div>
+              <div class="metric-label">Unclaimed (Found)</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-amber">🏷️</div>
+            <div>
+              <div class="metric-val" id="adm-claimed-found">0</div>
+              <div class="metric-label">Claimed Items</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-slate">✅</div>
+            <div>
+              <div class="metric-val" id="adm-returned-found">0</div>
+              <div class="metric-label">Returned Items</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon icon-purple">👥</div>
+            <div>
+              <div class="metric-val" id="adm-total-users">0</div>
+              <div class="metric-label">Registered Users</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:24px;">
+          <div class="card">
+            <div class="card-title">Recent Lost Reports</div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adm-recent-lost-table">
+                  <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Recent Found Items</div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adm-recent-found-table">
+                  <tr><td colspan="5">Loading...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 10: CATEGORY MANAGEMENT -->
+      <section id="view-categories" class="view-section">
+        <div class="card">
+          <div class="card-title">
+            <span>Campus Item Categories</span>
+            <button class="btn btn-primary btn-sm" onclick="openCategoryModal()">➕ Add Category</button>
+          </div>
+          <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:16px;">
+            Categories group lost & found records. Inactive categories cannot be selected for new items. Categories in use cannot be deleted.
+          </p>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Category Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-category-table-body">
+                <tr><td colspan="5" style="text-align:center;">Loading categories...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 11: USER PROFILE -->
+      <section id="view-profile" class="view-section">
+        <div class="card" style="max-width:540px; margin:0 auto;">
+          <h2 class="card-title">User Account Profile</h2>
+          <div id="profile-details-box" style="margin-bottom:20px;">
+            <p>Loading profile...</p>
+          </div>
+          <div style="display:flex; gap:12px;">
+            <button class="btn btn-danger" onclick="logout()">Sign Out</button>
+            <button class="btn btn-secondary" onclick="navigateTo('view-browse-lost')">Back to Portal</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Reusable Modal Dialog -->
+  <div class="modal-overlay" id="generic-modal" onclick="closeModalOnOverlay(event)">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-title">Modal Title</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
